@@ -15,12 +15,13 @@
 	$orange = array(255, 160, 0, 'o'); //FF9900
 	$yellow = array(255, 255, 0, 'y'); //FFFF00
 	$black = array(0, 0, 0, '@'); //000000
+	/*
 	$histogramR = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	$histogramG = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	$histogramB = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-	
+	*/
 	$colors = array($red, $green, $blue, $white, $orange, $yellow);
-	
+		
 	function writeHistogram($value, $char){
 		for($i=0;$i<$value;$i++){
 			echo $char;
@@ -33,8 +34,9 @@
 		return 1/(1+sqrt(square($r-$color[0]) + square($g-$color[1]) + square($b-$color[2])));
 	}
 	
-	for($y = 0; $y < $imagey;$y++){
-		for($x = 0; $x < $imagex; $x++){
+	/*
+	for($y = 0; $y < $imagey/3;$y++){
+		for($x = $imagex*0; $x < $imagex/3; $x++){
 			$rgb = imagecolorat($img, $x, $y);
 			/*
 			$r = ($rgb >> 16) & 0xFF;
@@ -43,7 +45,8 @@
 			$histogramR[(int)($r/16)]++;
 			$histogramG[(int)($g/16)]++;
 			$histogramB[(int)($b/16)]++;
-			*/
+			
+			
 			$rgb = imagecolorsforindex($img, $rgb);
 			$r = $rgb['red'];
 			$g = $rgb['green'];
@@ -69,11 +72,55 @@
 			}else{
 				echo '@';
 			}
-			*/
+			
+			
 			
 		}
 		echo '<br>';
 	}
+	*/
+	echo '<table>';
+	for($j=0; $j<3; $j++){
+		echo '<tr>';
+		for($i=0; $i<3; $i++){
+			for($y = $imagey*($j/3); $y < $imagey*(($j+1)/3); $y++){
+				for($x = $imagex*($i/3); $x < $imagex*(($i+1)/3); $x++){
+					$rgb = imagecolorat($img, $x, $y);
+					$rgb = imagecolorsforindex($img, $rgb);
+					$r = $rgb['red'];
+					$g = $rgb['green'];
+					$b = $rgb['blue'];
+					$maxSimilarly = 0; 
+					$similarlyColor = '';
+					foreach($colors as $color){
+						if($maxSimilarly < similarly($r, $g, $b, $color)){
+							$maxSimilarly = similarly($r, $g, $b, $color);
+							$similarlyColor = $color[3];
+						}
+					}
+					$colorCount[$similarlyColor]++;
+					//echo $similarlyColor;
+				}
+				//echo '<br>';
+			}
+			$maxColor = max($colorCount);
+			$colorCount = array_flip($colorCount);
+			echo '<td>' . $colorCount[$maxColor] . '</td>';
+			$colorCount = array(
+				'r' => 0,
+				'g' => 0,
+				'b' => 0,
+				'w' => 0,
+				'o' => 0,
+				'y' => 0
+			);
+		}
+		echo '</tr>';
+	}
+	echo '</table>';
+	
+	
+	
 	/*
 	echo 'Red <br>';
 	foreach($histogramR as $countR){
