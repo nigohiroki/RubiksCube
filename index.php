@@ -1,3 +1,4 @@
+<img src="20121015.png">
 <?php
 	
 	define('CUBE', '20121015.png');
@@ -7,48 +8,73 @@
 	$imagex = imagesx($img);
 	$imagey = imagesy($img);
 	
-	$red = array(150, 110, 110);
-	$green = array(110, 80, 110);
-	$white = array(110, 110, 110);
-	$blue = array(100, 100, 80);
+	$red = array(255, 0, 0, 'r'); //FF0000	
+	$green = array(0, 255, 0, 'g'); //00FF00
+	$white = array(255, 255, 255, 'w'); //FFFFFF
+	$blue = array(0, 0, 255, 'b'); //0000FF
+	$orange = array(255, 160, 0, 'o'); //FF9900
+	$yellow = array(255, 255, 0, 'y'); //FFFF00
+	$black = array(0, 0, 0, '@'); //000000
 	$histogramR = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	$histogramG = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	$histogramB = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	
+	$colors = array($red, $green, $blue, $white, $orange, $yellow);
 	
 	function writeHistogram($value, $char){
 		for($i=0;$i<$value;$i++){
 			echo $char;
 		}
 	}
+	function square($value){
+		return $value*$value;
+	}
+	function similarly($r, $g, $b, $color){
+		return 1/(1+sqrt(square($r-$color[0]) + square($g-$color[1]) + square($b-$color[2])));
+	}
 	
 	for($y = 0; $y < $imagey;$y++){
 		for($x = 0; $x < $imagex; $x++){
 			$rgb = imagecolorat($img, $x, $y);
+			/*
 			$r = ($rgb >> 16) & 0xFF;
 			$g = ($rgb >> 8) & 0xFF;
 			$b = $rgb & 0xFF;
 			$histogramR[(int)($r/16)]++;
 			$histogramG[(int)($g/16)]++;
 			$histogramB[(int)($b/16)]++;
+			*/
+			$rgb = imagecolorsforindex($img, $rgb);
+			$r = $rgb['red'];
+			$g = $rgb['green'];
+			$b = $rgb['blue'];
+			$max = 0; 
+			$maxColor = '';
+			foreach($colors as $color){
+				if($max < similarly($r, $g, $b, $color)){
+					$max = similarly($r, $g, $b, $color);
+					$maxColor = $color[3];
+				}
+			}
+			echo $maxColor;
 			/*
-			$colors = imagecolorsforindex($img, $rgb);
-			$r = $colors['red'];
-			$g = $colors['green'];
-			$b = $colors['blue'];
-			if($white[0] < $r && $white[1] < $g && $white[2] < $b){
-				echo 'w';
-			}else if($red[0] < $r && $red[1] > $g && $red[2] > $b){
+			if($red[0] < $r && $red[1] > $g && $red[2] > $b){
 				echo 'r';
 			}else if($gren[0] > $r && $green[1] < $g && $green[2] > $b){
 				echo 'g';	
 			}else if($blue[0] > $r && $blue[1] > $g && $blue[2] < $b){
 				echo 'b';
+			}else if($white[0] < $r && $white[1] < $g && $white[2] < $b){
+				echo 'w';
 			}else{
 				echo '@';
 			}
 			*/
+			
 		}
+		echo '<br>';
 	}
+	/*
 	echo 'Red <br>';
 	foreach($histogramR as $countR){
 		writeHistogram($countR/100, 'r');
@@ -64,6 +90,8 @@
 		writeHistogram($countB/100, 'b');
 		echo '<br>';
 	}
+	*/
+	
 ?>
 <!DOCTYPE html>
 <html> 
