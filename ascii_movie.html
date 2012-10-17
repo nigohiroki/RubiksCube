@@ -1,0 +1,167 @@
+<!DOCTYPE html> 
+<head>
+<meta charset="utf-8">
+<title>ascii_movie_sample</title> 
+<script src='./jquery-1.4.4.min.js'></script>
+<style> 
+body {
+	font-size:7px;
+	overflow:hidden;
+}
+
+video {
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	margin: 0px;
+	
+}
+#out{
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	margin:0px;
+	font-family: monospace;
+	line-height: 1em;
+	white-space: pre;
+
+}
+#douga {
+	position: absolute;
+	top: 0%;
+	left: 0%;
+	color:#fff;
+	font-size:large;
+	margin: 0px;
+	
+} 
+#back {
+	position: absolute;
+	top:0px;
+	right: 0px;
+	width:320px;
+	height:240px;
+	margin:0px;
+	}
+#picture{
+	position: absolute;
+	top:0px;
+	right: 0px;
+	margin:0px;
+	color:#fff;
+	font-size:large;
+}
+ 
+#letter {
+	position: absolute;
+	
+	left: -9001px;
+	font-family: monospace;
+	line-height: 1em;
+}
+
+a {
+	color: #fff;
+	text-decoration: none;
+} 
+a:hover {
+	color: #fff;
+	opacity: 1;
+	text-decoration:none;
+}
+h1 { 
+  font-size: 17px;
+}
+ 
+p {
+  font-size: 13px;
+}
+label {
+  font-size: 14px;
+}
+</style>
+
+</head>
+
+<body>
+
+<script> 
+ 
+function domReady(){
+
+  var video = document.getElementById("v");
+  var lw, lh, cw, ch, back, backcontext, out;
+  
+  lw = $("#letter").width();
+  
+  lh = $("#letter").height();
+  cw=Math.floor(window.innerWidth/lw);
+  ch=Math.floor(window.innerHeight/lh);
+  back = $("#back");
+  backcontext = back[0].getContext('2d');
+  out = $("#out");
+ 
+ 	//videoのplayのイベントハンドラをバインド
+	$("#v").unbind("play").bind("play", function(){
+		
+		cw=Math.floor(window.innerWidth/lw);	
+		ch=Math.floor(window.innerHeight/lh);
+		back.attr('width',cw);
+		back.attr('height',ch);
+		draw(this,out,backcontext,cw,ch);
+	});
+    
+}
+ 
+ 
+function draw(v,out,bc,w,h) {
+	if(v.paused || v.ended)	return false;
+	//canvasに読み込み
+	bc.drawImage(v,0,0,w,h);
+	// Grab the pixel data from the backing canvas
+	var data = bc.getImageData(0,0,w,h).data;
+	// Initialize a char array
+	var chars = []
+	// Loop through the pixels
+	for(var ih = 0; ih < h; ih++) {
+		for(var iw = 0; iw < w; iw++) {
+			// Convert a width/height into an imagedata offset
+			var i = (ih*w + iw) * 4;
+			// Convert the color into an appropriate character
+			chars.push(colorToChar(data[i],data[i+1],data[i+2]));
+		}
+		chars.push("<br>");
+	}
+	// id=outに書き込みをする
+	out.html(chars.join(''));
+	// スタートオーバー
+	setTimeout(function(){ draw(v,out,bc,w,h); }, 0);
+}
+ 
+function colorToChar(r,g,b) {
+	// Color を brightnessに格納
+	var brightness = (3*r+4*g+b)>>>3;
+	//0の場合、devide0を回避
+	if(brightness==0){
+		brightness=1;
+	}
+	var chars = "  .,:;iltfLG@";
+	return chars[Math.floor((1 - (brightness / 255)) * chars.length)];
+}
+
+$(domReady);
+</script> 
+
+<div id=out></div> 
+<canvas id=back></canvas> 
+<span id=letter>o</span> 
+
+<video id=v controls autoplay loop> 
+
+  <source src=xxxxxx.mp4 type=video/mp4> 
+ 
+</video> 
+<div id=douga>(1)対象動画 videoタグ</div>
+<div id=picture>(2)変換中のCanvas画像 canvasタグ</div>
+</body>
+</html>
